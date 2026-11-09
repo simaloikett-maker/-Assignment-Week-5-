@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 640">
+  <rect width="480" height="640" fill="#e7e1d5"/>
+  <rect x="34" y="34" width="412" height="572" rx="4" fill="#d8cdbb"/>
+  <path d="M92 124h296M92 146h180" stroke="#887d6a" stroke-width="3" opacity=".55"/>
+  <path d="M240 245c-44-31-85 2-85 48 0 58 85 117 85 117s85-59 85-117c0-46-41-79-85-48Z" fill="#a16b4b" opacity=".8"/>
+  <text x="240" y="490" fill="#5b5144" font-family="Georgia,serif" font-size="24" text-anchor="middle">A story awaits</text>
+</svg>
