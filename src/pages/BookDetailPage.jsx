@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { fetchJson } from '../api.js';
+import useReadingList from '../hooks/useReadingList.js';
 
 export default function BookDetailPage() {
   const { id } = useParams();
   const [state, setState] = useState({ book: null, loading: true, error: '' });
+  const { readingList, addBook, removeBook } = useReadingList();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -42,6 +44,7 @@ export default function BookDetailPage() {
 
   const { book } = state;
   const genreName = typeof book.genre === 'object' ? book.genre?.name : '';
+  const isSaved = readingList.some((savedBook) => (savedBook._id || savedBook.id) === (book._id || book.id));
 
   return (
     <main className="detail-page">
@@ -70,7 +73,15 @@ export default function BookDetailPage() {
               <div><dt>Availability</dt><dd>{book.availableCopies > 0 ? `${book.availableCopies} ${book.availableCopies === 1 ? 'copy' : 'copies'} available` : 'Currently checked out'}</dd></div>
             )}
           </dl>
-          <Link className="button-primary" to="/">Keep exploring <span aria-hidden="true">↗</span></Link>
+          <div className="detail-actions">
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={() => (isSaved ? removeBook(book._id || book.id) : addBook(book))}
+              aria-pressed={isSaved}
+            >{isSaved ? 'Remove from reading list' : '＋ Add to reading list'}</button>
+            <Link className="button-primary" to="/">Keep exploring <span aria-hidden="true">↗</span></Link>
+          </div>
         </div>
       </article>
     </main>

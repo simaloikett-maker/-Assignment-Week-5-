@@ -1,6 +1,13 @@
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Navigate, Route, Routes } from 'react-router-dom';
 import CatalogPage from './pages/CatalogPage.jsx';
 import BookDetailPage from './pages/BookDetailPage.jsx';
+import ReadingListPage from './pages/ReadingListPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import BookingPage from './pages/BookingPage.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+import { ReadingListProvider } from './context/ReadingListContext.jsx';
 
 function NotFoundPage() {
   return (
@@ -12,7 +19,17 @@ function NotFoundPage() {
   );
 }
 
-export default function App() {
+function AppContent() {
+  const { user, status, error, logout } = useAuth();
+
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {
+      // The context keeps the user signed in and exposes the request error.
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -21,10 +38,32 @@ export default function App() {
           <span>open shelf<span className="brand-period">.</span></span>
         </Link>
         <span className="header-note">Your next favorite is waiting.</span>
+        <nav className="site-navigation" aria-label="Main navigation">
+          <Link to="/reading-list">Reading list</Link>
+          {status === 'authenticated' ? (
+            <>
+              <Link to="/booking">Book a space</Link>
+              <span className="account-name">{user?.username || user?.email}</span>
+              <button type="button" className="nav-button" onClick={handleLogout}>Sign out</button>
+            </>
+          ) : status === 'loading' ? (
+            <span className="account-name">Checking session…</span>
+          ) : (
+            <>
+              <Link to="/login">Sign in</Link>
+              <Link to="/register">Register</Link>
+            </>
+          )}
+        </nav>
       </header>
+      {error && <p className="auth-notice" role="alert">{error}</p>}
       <Routes>
         <Route path="/" element={<CatalogPage />} />
         <Route path="/books/:id" element={<BookDetailPage />} />
+        <Route path="/reading-list" element={<ReadingListPage />} />
+        <Route path="/login" element={status === 'authenticated' ? <Navigate to="/booking" replace /> : <LoginPage />} />
+        <Route path="/register" element={status === 'authenticated' ? <Navigate to="/booking" replace /> : <RegisterPage />} />
+        <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <footer className="site-footer">
@@ -32,5 +71,15 @@ export default function App() {
         <span>A little more room for a good story.</span>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ReadingListProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ReadingListProvider>
   );
 }

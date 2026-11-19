@@ -39,6 +39,24 @@ When deploying with browser-history routing, configure the static host to serve 
 - Book detail pages at `/books/:id`, with a friendly not-found state for malformed IDs and API errors
 - Visible loading, error, and empty states for the catalog, genre list, and book detail
 - Pagination driven by the API response metadata
+- A reading list that can be managed from catalog cards and book detail pages
+- Login and registration backed by the API, with booking access restricted to signed-in patrons
+- A local-only space booking form for a study room, date, and start/end times
+
+## Reading list and booking persistence
+
+The reading list is stored in browser `localStorage`, so it survives a page refresh without requiring an account or a backend endpoint. It is specific to the current browser and device; clearing browser storage removes it. Space booking form values are currently held only in React state and are not submitted or persisted. The form is intentionally ready for a booking endpoint to be added later.
+
+Authentication uses the API's `HttpOnly` session cookie rather than storing a token in browser JavaScript. Login, registration, and profile requests include credentials. Registration signs the patron in immediately after successful account creation so the protected booking page is available without a second manual login.
+
+The Vite development server also proxies `/api` to the catalog service for the authentication and profile routes.
+
+## Authentication and booking
+
+- `/login` — sign in using an API patron account
+- `/register` — create an account; duplicate usernames/emails and other API failures are shown in the form
+- `/booking` — protected space booking form
+- `/reading-list` — view and manage locally saved books
 
 ## Filtering strategy
 
